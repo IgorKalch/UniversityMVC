@@ -14,4 +14,5 @@ MediatR,
 Identity Framework,
 Razor Views for UI,
 Dependency Injection,
-Localization.
+Localization,
+toaster.js
