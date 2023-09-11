@@ -6,12 +6,12 @@ A separate form for adding, editing, and deleting. Course, group cannot be delet
 Development Stack:
 
 ASP.NET Core MVC
-Entity Framework Core
-Microsoft SQL Server
-FluentValidation
-AutoMapper
-MediatR
-Identity Framework
-Razor Views for UI
-Dependency Injection
-Localization
+Entity Framework Core,
+Microsoft SQL Server,
+FluentValidation,
+AutoMapper,
+MediatR,
+Identity Framework,
+Razor Views for UI,
+Dependency Injection,
+Localization.
