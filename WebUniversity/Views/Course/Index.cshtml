@@ -1,0 +1,166 @@
+﻿@using Microsoft.Extensions.Localization;
+@using UniversityApplication.CQRSModuels.Courses.Commands.Create;
+@using UniversityApplication.CQRSModuels.Courses.Commands.Delete;
+@using UniversityApplication.CQRSModuels.Courses.Commands.Edit;
+@using UniversityApplication.User;
+@using WebUniversity.Controllers;
+@model List<UniversityDataLayer.Entities.Course>
+
+@inject IStringLocalizer<CourseController> Localizer;
+@inject IUserContext User;
+
+@{
+    ViewData["Title"] = "Courses";
+
+    bool isShowAdminButton = false;
+    var currentUser = User.GetCurrentUser();
+
+    if (currentUser != null)
+    {
+        isShowAdminButton =  currentUser.IsInRole("Admin");
+    }
+}
+
+<h1>Courses</h1>
+@if (isShowAdminButton)
+{
+    <div class="partial-btn-border">
+        <partial name="_Create" model="new CreateCourseCommand()" />
+    </div>
+}
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+
+            @if (Model.Count > 0)
+            {
+                @foreach (var course in Model)
+                {
+                    <div class="model-item-course">
+
+                        <div class="d-flex justify-content-between align-items-center">
+                            <a href="#" class="course-model-group flex-grow-1" data-bs-toggle="tooltip" title="@course.Description">@course.Name</a>
+                            <div>
+                                @if (isShowAdminButton)
+                                {
+                                    <a class="btn btn-primary btn-border " asp-controller="Group" asp-action="Create" asp-route-id="@course.Id">Add group</a>
+                                    <a class="btn btn-primary btn-border" asp-controller="Course" asp-action="Edit" asp-route-id="@course.Id">Edit</a>
+                                }
+
+                                @if ((course.Groups == null || course.Groups.Count == 0) && isShowAdminButton)
+                                {
+                                    <div class="partial-btn-border">
+                                        <partial name="_Delete" model="new DeleteCourseCommand(){ Id = @course.Id, Name = @course.Name, Description = course.Description }" modalId="deleteCourseModal_@course.Id" />
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                        <div class="model-child-group">
+                            <h5 class ="text-beetwen-sections">Groups:</h5>
+                            @foreach (var group in course.Groups)
+                            {
+                                <div class="model-item-course-group">
+                                    <div class="model-item-in-group">
+                                        @if (group == null) continue;
+
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <a href="#" class="group-model-student flex-grow-1" data-bs-toggle="tooltip" title="Students count : @(group.Students == null? 0 : group.Students.Count)">@group.Name</a>
+                                            <div>
+                                                @if (isShowAdminButton)
+                                                {
+                                                    <a class="btn btn-primary btn-border " asp-controller="Student" asp-action="Create" asp-route-id="@group.Id">Add student</a>
+                                                    <a class="btn btn-primary btn-border" asp-controller="Group" asp-action="Edit" asp-route-id="@group.Id">Edit</a>
+                                                }
+
+                                                @if ((group.Students == null || group.Students.Count == 0) && isShowAdminButton)
+                                                {
+                                                    <a class="btn btn-danger btn-border" asp-controller="Group" asp-action="Delete" asp-route-id="@group.Id">Delete</a>
+                                                }
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    @if (group.Students != null)
+                                    {
+                                        
+                                        <div class="model-child-group-student">
+                                            <h5 class="text-beetwen-sections">Students:</h5>
+                                            @foreach (var student in group.Students)
+                                            {
+                                                <div class="model-item-in-group-student">
+
+                                                    <div class="d-flex justify-content-between align-items-center">
+                                                        <div href="#" class="student-model flex-grow-1">@student.FullName</div>
+                                                        <div>
+                                                            @if (isShowAdminButton)
+                                                            {
+                                                                <a class="btn btn-primary btn-border" asp-controller="Student" asp-action="Edit" asp-route-id="@student.Id">Edit</a>
+                                                                <a class="btn btn-danger btn-border" asp-controller="Student" asp-action="Delete" asp-route-id="@student.Id">Delete</a>
+                                                            }
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            }
+                                        </div>
+                                    }
+                                </div>
+                            }
+                        </div>
+                    </div>
+                }
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script src="~/js/Course/Index.js"></script>
+    <script>
+
+        function handleAjaxRequest(formSelector, successNotification, successMessage, errorNotification, errorMessage) {
+            $(formSelector).submit(function (event) {
+                event.preventDefault();
+
+                var form = $(this);
+                var validationSummary = form.find(".validation-summary ul");
+
+                $.ajax({
+                    url: form.attr('action'),
+                    type: form.attr('method'),
+                    data: form.serialize(),
+                    success: function (data) {
+                        toastr[successNotification](successMessage);
+                    },
+                    error: function (jqXHR) {
+                        if (jqXHR.status === 400) {
+                            var errors = jqXHR.responseJSON;
+                            validationSummary.empty();
+                            $.each(errors, function (key, value) {
+                                validationSummary.append('<li>' + value + '</li>');
+                            });
+                            validationSummary.parent().show();
+                        } else {
+                            toastr[errorNotification](errorMessage);
+                        }
+                    }
+                });
+            });
+        }
+
+        function handleModalHiddenEvent(modalSelector) {
+            $(modalSelector).on('hidden.bs.modal', function (e) {
+                location.reload();
+            });
+        }
+
+        handleAjaxRequest("#createCourseModal form", "@nameof(ENotificationType.success)", "@Localizer["CreateSuccess"]", "@nameof(ENotificationType.error)", "@Localizer["CreateError"]");        
+        handleModalHiddenEvent('#createCourseModal');
+
+    </script>
+
+} 

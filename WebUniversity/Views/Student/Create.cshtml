@@ -1,0 +1,39 @@
+﻿@using UniversityApplication.CQRSModuels.Students.Commands.Create;
+
+@model CreateStudentCommand
+
+@{
+    ViewData["Title"] = "Create Student";
+}
+
+<div class="text-left">
+    <h1>@ViewData["Title"]</h1>
+    <hr />
+    <div class="row">
+        <div class="col-md-4">
+            <form action="/Student/Create" method="post">
+                <input type="hidden" asp-for="GroupId" />
+                <div class="form-group mb-3">
+                    <label class="control-label" asp-for="FirstName">Name</label>
+                    <input class="form-control" type="text" asp-for="FirstName">
+                    <span asp-validation-for="FirstName" class="text-danger"></span>
+                </div>
+                <div class="form-group mb-3">
+                    <label class="control-label" asp-for="LastName">Surname</label>
+                    <input class="form-control" type="text" asp-for="LastName" >
+                    <span asp-validation-for="LastName" class="text-danger"></span>
+                </div>
+                <div class="form-group mb-3">
+                    <input class="btn btn-primary" type="submit" value="Create">
+                </div>
+            </form>
+        </div>
+    </div>
+
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

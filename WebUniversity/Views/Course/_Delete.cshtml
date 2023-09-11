@@ -1,0 +1,39 @@
+﻿@model UniversityApplication.CQRSModuels.Courses.Commands.Delete.DeleteCourseCommand
+
+@{
+    ViewData["Title"] = "Delete";
+}
+
+<button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteCourseModal_@Model.Id">
+    @ViewData["Title"]
+</button>
+
+<div class="modal fade" id="deleteCourseModal_@Model.Id" tabindex="-1" aria-labelledby="deleteCourseLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form asp-action="Delete">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteCourseLabel">Delete course</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <h4>Are you sure you want to delete this?</h4>
+                    <input type="hidden" asp-for="Id" />
+                    <div class="form-group m-3">
+                        <label asp-for="Name" class="control-label"></label>
+                        <input type="text" asp-for="Name" class="form-control" readonly />
+                    </div>
+                    <div class="form-group m-3">
+                        <label asp-for="Description" class="control-label"></label>
+                        <input type="text" asp-for="Description" class="form-control" readonly />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <input type="submit" value="Delete" class="btn btn-danger"/>
+                    <a asp-action="Index" class="btn btn-primary">Back to List</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
